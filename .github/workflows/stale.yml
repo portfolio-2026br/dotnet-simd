@@ -1,0 +1,70 @@
+# ################################################################################
+#  Copyright (c) 2026  Claudio André <portfolio-2026br at claudioandre.slmail.me>
+#              ___                _      ___       _
+#             (  _`\             ( )_  /'___)     (_ )  _
+#             | |_) )  _    _ __ | ,_)| (__   _    | | (_)   _
+#             | ,__/'/'_`\ ( '__)| |  | ,__)/'_`\  | | | | /'_`\
+#             | |   ( (_) )| |   | |_ | |  ( (_) ) | | | |( (_) )
+#             (_)   `\___/'(_)   `\__)(_)  `\___/'(___)(_)`\___/'
+#
+# This program comes with ABSOLUTELY NO WARRANTY; express or implied.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, as expressed in version 2, seen at
+# https://www.gnu.org/licenses/gpl-2.0.html
+# ################################################################################
+# GitHub Action to close old issues automatically
+# More info at https://github.com/portfolio-2026br/dotnet-simd
+
+---
+name: Close issues
+
+"on":
+  schedule:
+    - cron: "30 1 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  close-issues:
+    runs-on: ubuntu-latest
+    name: stale
+
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+
+      - uses: actions/stale@3a9db7e6a41a89f618792c92c0e97cc736e1b13f # v10.0.0
+        with:
+          days-before-issue-stale: 14
+          days-before-issue-close: 7
+          exempt-issue-labels: "keep open,O: backlog"
+          stale-issue-label: "O: stale"
+          stale-issue-message: |
+            "This issue is stale because it has been open for 14 days with no activity."
+          close-issue-message: |
+            "This issue was closed because it has been inactive for 7 days since being marked as stale."
+
+          days-before-pr-stale: 14
+          days-before-pr-close: -1
+          exempt-pr-labels: "keep open"
+          stale-pr-label: "O: stale"
+          stale-pr-message: |
+            "This PR is stale because it has been open for 14 days with no activity."
+
+          # Avoid stale for specific milestones
+          exempt-issue-milestones: "future"
+          exempt-pr-milestones: "future"
+
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

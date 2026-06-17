@@ -1,0 +1,77 @@
+# ################################################################################
+#  Copyright (c) 2026  Claudio André <portfolio-2026br at claudioandre.slmail.me>
+#              ___                _      ___       _
+#             (  _`\             ( )_  /'___)     (_ )  _
+#             | |_) )  _    _ __ | ,_)| (__   _    | | (_)   _
+#             | ,__/'/'_`\ ( '__)| |  | ,__)/'_`\  | | | | /'_`\
+#             | |   ( (_) )| |   | |_ | |  ( (_) ) | | | |( (_) )
+#             (_)   `\___/'(_)   `\__)(_)  `\___/'(___)(_)`\___/'
+#
+# This program comes with ABSOLUTELY NO WARRANTY; express or implied.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, as expressed in version 2, seen at
+# https://www.gnu.org/licenses/gpl-2.0.html
+# ################################################################################
+# GitHub Action to run CodeQL scanner
+# More info at https://github.com/portfolio-2026br/dotnet-simd
+
+---
+name: "CodeQL"
+
+"on":
+  pull_request:
+    branches: ["main"]
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["C#"]
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            api.nuget.org:443
+            github.com:443
+            release-assets.githubusercontent.com:443
+            objects.githubusercontent.com:443
+            uploads.github.com:443
+
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@192325c86100d080feab897ff886c34abd4c83a3 # v3.30.3
+        with:
+          languages: ${{ matrix.language }}
+
+      # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@192325c86100d080feab897ff886c34abd4c83a3 # v3.30.3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@192325c86100d080feab897ff886c34abd4c83a3 # v3.30.3
+        with:
+          category: "/language:${{matrix.language}}"

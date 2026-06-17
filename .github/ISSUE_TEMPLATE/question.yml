@@ -1,0 +1,44 @@
+# ################################################################################
+#  Copyright (c) 2026  Claudio André <portfolio-2026br at claudioandre.slmail.me>
+#              ___                _      ___       _
+#             (  _`\             ( )_  /'___)     (_ )  _
+#             | |_) )  _    _ __ | ,_)| (__   _    | | (_)   _
+#             | ,__/'/'_`\ ( '__)| |  | ,__)/'_`\  | | | | /'_`\
+#             | |   ( (_) )| |   | |_ | |  ( (_) ) | | | |( (_) )
+#             (_)   `\___/'(_)   `\__)(_)  `\___/'(___)(_)`\___/'
+#
+# This program comes with ABSOLUTELY NO WARRANTY; express or implied.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, as expressed in version 2, seen at
+# https://www.gnu.org/licenses/gpl-2.0.html
+# ################################################################################
+
+---
+name: Question
+description: Fazer uma pergunta.
+labels: ["question"]
+
+body:
+  - type: markdown
+    id: header
+    attributes:
+      value: |
+        Obrigado por fazer uma pergunta!
+
+        - Lembre-se de incluir detalhes e contexto suficientes.
+        - Se você tiver várias perguntas, envie-as separadamente para que possamos acompanhar a resolução.
+        - Considere usar [Discussions](https://github.com/portfolio-2026br/dotnet-simd/discussions):
+          - se estiver tentando iniciar uma conversa sobre um tópico;
+          - pois queremos encerrar todos os issues o mais rápido possível;
+          - porém as discussões são a ferramenta destinada a conversas mais longas.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Pergunta
+      description: O que você gostaria de saber?
+      placeholder: Quanto mais detalhes, melhor
+    validations:
+      required: true

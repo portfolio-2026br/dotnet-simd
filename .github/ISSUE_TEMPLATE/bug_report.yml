@@ -1,0 +1,58 @@
+# ################################################################################
+#  Copyright (c) 2026  Claudio André <portfolio-2026br at claudioandre.slmail.me>
+#              ___                _      ___       _
+#             (  _`\             ( )_  /'___)     (_ )  _
+#             | |_) )  _    _ __ | ,_)| (__   _    | | (_)   _
+#             | ,__/'/'_`\ ( '__)| |  | ,__)/'_`\  | | | | /'_`\
+#             | |   ( (_) )| |   | |_ | |  ( (_) ) | | | |( (_) )
+#             (_)   `\___/'(_)   `\__)(_)  `\___/'(___)(_)`\___/'
+#
+# This program comes with ABSOLUTELY NO WARRANTY; express or implied.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, as expressed in version 2, seen at
+# https://www.gnu.org/licenses/gpl-2.0.html
+# ################################################################################
+
+---
+name: Bug Report
+description: Relatar um erro no aplicativo.
+title: "[BUG]: "
+labels: ["bug"]
+
+body:
+  - type: markdown
+    id: header
+    attributes:
+      value: |
+        Esperamos relatórios de problemas da última revisão encontrada no repositório do GitHub.
+
+  - type: dropdown
+    attributes:
+      label: Qual versão do aplicativo você está usando?
+      description: Selecione a(s) versão(ões) apropriada(s).
+      multiple: true
+      options:
+        - última
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Descrição do bug
+      description: Diga-nos qual foi o bug que você encontrou e o que deveria ter acontecido.
+      placeholder: |
+        Quanto mais informações você puder fornecer, mais fácil será reproduzir o problema e encontrar uma correção.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Etapas para reproduzir
+      description: |
+        A linha de comando que você executou e a saída que obteve.
+      placeholder: Escreva as etapas em forma de lista.
+    validations:
+      required: false

@@ -1,0 +1,5 @@
+[codespell]
+skip = *.po,*.ts,*.md,./.gitignore/,./.github/
+count =
+quiet-level = 3
+ignore-words-list = erro,erros,comando,comandos,autor,essencial,relevante,alternativos,Considere,meu,meus,profissional,auxiliar,ser,refere,caracteres,Analise,simular,Fale,inicial

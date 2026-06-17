@@ -1,0 +1,127 @@
+# ################################################################################
+#  Copyright (c) 2026  Claudio André <portfolio-2026br at claudioandre.slmail.me>
+#              ___                _      ___       _
+#             (  _`\             ( )_  /'___)     (_ )  _
+#             | |_) )  _    _ __ | ,_)| (__   _    | | (_)   _
+#             | ,__/'/'_`\ ( '__)| |  | ,__)/'_`\  | | | | /'_`\
+#             | |   ( (_) )| |   | |_ | |  ( (_) ) | | | |( (_) )
+#             (_)   `\___/'(_)   `\__)(_)  `\___/'(___)(_)`\___/'
+#
+# This program comes with ABSOLUTELY NO WARRANTY; express or implied.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, as expressed in version 2, seen at
+# https://www.gnu.org/licenses/gpl-2.0.html
+###############################################################################
+# GitHub Action that performs the actual merge
+# More info at https://github.com/portfolio-2026br/dotnet-simd
+
+---
+name: doMerge
+
+"on":
+  workflow_call:
+    inputs:
+      branch:
+        description: "The name of the branch to be merged."
+        required: false
+        type: string
+      owner:
+        description: "The owner of the repository the PR comes from"
+        required: false
+        type: string
+      repo:
+        description: "The name of the repository the PR comes from"
+        required: false
+        type: string
+      pr-number:
+        description: "The number of the PR to merge"
+        required: true
+        type: number
+      request:
+        description: "The command to be executed"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  merger:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    if: github.actor == 'portfolio-2026br'
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+            raw.githubusercontent.com:443
+
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          ref: main
+          persist-credentials: true # required for the bot to perform the merge
+
+      - name: GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
+      - name: Get PR info
+        id: context
+        run: |
+          PR_URL="https://github.com/${{ github.repository }}/pull/$PR_NUMBER"
+          if [[ -z "${BRANCH}" ]]; then
+            BRANCH="$(gh pr view "$PR_URL" --json headRefName        --jq '.headRefName')"
+            OWNER="$(gh pr view "$PR_URL" --json headRepositoryOwner --jq '.headRepositoryOwner.login')"
+            REPO="$(gh pr view "$PR_URL" --json headRepository       --jq '.headRepository.name')"
+          fi
+
+          if [[ "${INPUT_REQUEST}"  == "true" ]]; then
+            REQUEST="bot: MERGE trial"
+          elif [[ "${INPUT_REQUEST}"  == "false" ]]; then
+            REQUEST="bot: MERGE"
+          else
+            REQUEST="${INPUT_REQUEST}"
+          fi
+          {
+            echo "branch=$BRANCH"
+            echo "owner=$OWNER"
+            echo "repo=$REPO"
+            echo "pr-url=$PR_URL"
+            echo "request=$REQUEST"
+          } >> "$GITHUB_OUTPUT"
+
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ inputs.pr-number }}
+          BRANCH: ${{ inputs.branch }}
+          OWNER: ${{ inputs.owner }}
+          REPO: ${{ inputs.repo }}
+          INPUT_REQUEST: ${{ inputs.request }}
+
+      - name: Auto-merge PRs
+        run: |
+          # Download the script
+          wget https://github.com/portfolio-2026br/dotnet-simd/raw/refs/heads/main/scripts/merge_procedures.sh
+          source "./merge_procedures.sh" # @main
+
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ steps.context.outputs.branch }}
+          OWNER: ${{ steps.context.outputs.owner }}
+          REPO: ${{ steps.context.outputs.repo }}
+          PR_URL: ${{ steps.context.outputs.pr-url }}
+          REQUEST: ${{ steps.context.outputs.request }}
